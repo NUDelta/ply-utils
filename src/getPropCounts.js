@@ -1,3 +1,9 @@
+import {List, fromJS, forEach} from 'immutable';
+import keywords from '../keywords';
+
+// Freeze keywords, just to be safe
+const CSS_PROPS = fromJS(keywords);
+
 const blocks = Array.from(document.querySelectorAll('pre'));
 const contents = blocks.map((el) => el.textContent);
 
