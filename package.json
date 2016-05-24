@@ -1,0 +1,29 @@
+{
+  "name": "ply-utils",
+  "version": "1.0.0",
+  "description": "search urls for css property mentions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "babel-node index.js"
+  },
+  "author": "Sarah Lim <sarah@sarahlim.com> (http://sarahlim.com)",
+  "license": "ISC",
+  "dependencies": {
+    "byline": "^4.2.1",
+    "cheerio": "^0.20.0",
+    "fs-extra": "^0.30.0",
+    "immutable": "^3.8.1",
+    "request": "^2.72.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-core": "^6.9.0",
+    "babel-preset-es2015": "^6.9.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  }
+}
