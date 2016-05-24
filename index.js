@@ -1,8 +1,8 @@
-import request from 'request';
 import fs from 'fs-extra';
 import path from 'path';
 import byline from 'byline';
 import {List, fromJS, forEach} from 'immutable';
+import {extractFeatures} from './src/parseUrl';
 
 const src = path.join(__dirname, 'input');
 const dest = path.join(__dirname, 'output');
@@ -31,20 +31,13 @@ fs.ensureDir(dest, (err) => {
 
     stream.on('data', (url) => {
       console.log('Processing', url);
-
-      counter += 1;
-      output = `${technique}-${counter}`;
-
-      // Get the html body
-      request
-        .get(url)
-        .on('error', (err) => {
-          console.log(err)
-        })
-        .pipe(fs.createWriteStream(
-          path.join(dest, output)
-        ));
+      extractFeatures(url);
     });
   });
 
 });
+
+
+// .pipe(fs.createWriteStream(
+//           path.join(dest, output)
+//         ));
