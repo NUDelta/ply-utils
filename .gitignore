@@ -1,3 +1,5 @@
-input/*
-output/*
-node-modules
+input
+output
+node_modules
+npm-deug.log*
+*.log
