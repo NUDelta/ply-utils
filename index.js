@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import byline from 'byline';
 import {List, fromJS, forEach} from 'immutable';
-import {extractFeatures} from './src/parseUrl';
+import {extractFeatures} from './src/parseSite';
 
 const src = path.join(__dirname, 'input');
 const dest = path.join(__dirname, 'output');
@@ -25,9 +25,6 @@ fs.ensureDir(dest, (err) => {
       path.join(src, technique),
       { encoding: 'utf8' })
     );
-
-    let counter = -1;
-    let output = '';
 
     stream.on('data', (url) => {
       console.log('Processing', url);

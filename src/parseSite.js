@@ -12,8 +12,10 @@ function getHtmlContent (url) {
   return new Promise((resolve, reject) => {
     request(url, (err, res, body) => {
       if (err) {
-        reject(err); return;
+        reject(err);
+        return;
       }
+
       resolve(body);
     });
   });
@@ -26,22 +28,24 @@ function getHtmlContent (url) {
  */
 function countKeywords (body) {
   const $ = cheerio.load(body);
-  const blocks = $('pre').text();  // Load the combined text content of all matched elements
+  const blocks = $('pre').text()  // Load the combined text content of all matched elements
+    .replace(/:/g, ': ');  // HACK: add spaces after colons so filtering works
   
-  const tokens = blocks.split(/\s+/);
+  const tokens = blocks.split(/[\s;]+/);
   const tallies = tokens.filter(tk => tk.charAt(tk.length - 1) === ':')
-                        .map(tk => tk.slice(0, tk.length - 1))
-                        .filter(tk => KEYWORDS.indexOf(tk) !== -1)
-                        .reduce(
-                          (acc, tk) => acc.update(tk, 0, count => count + 1),
-                          Map()
-                        );
+    .map(tk => tk.slice(0, tk.length - 1))
+    .filter(tk => KEYWORDS.indexOf(tk) !== -1)
+    .reduce(
+      (acc, tk) => acc.update(tk, 0, count => count + 1),
+      Map()
+    );
+
   return tallies;
 }
 
 export function extractFeatures (url) {
   getHtmlContent(url)
     .then(countKeywords)
-    .then(tallies => console.log(tallies))
+    .then(tallies => console.log(JSON.stringify(tallies, null, 4)))
     .catch(err => console.error(err));
 }

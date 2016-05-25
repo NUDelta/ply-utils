@@ -3,3 +3,4 @@ output
 node_modules
 npm-deug.log*
 *.log
+secrets
