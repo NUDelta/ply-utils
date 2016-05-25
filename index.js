@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import byline from 'byline';
 import {List, fromJS, forEach} from 'immutable';
-import {extractFeatures} from './src/parseSite';
+import {getAllFeatures} from './src/processTutorials';
 
 const src = path.join(__dirname, 'input');
 const dest = path.join(__dirname, 'output');
@@ -28,7 +28,7 @@ fs.ensureDir(dest, (err) => {
 
     stream.on('data', (url) => {
       console.log('Processing', url);
-      extractFeatures(url);
+      getAllFeatures(url);
     });
   });
 

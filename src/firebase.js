@@ -5,3 +5,5 @@ firebase.initializeApp({
   serviceAccount: '../secrets/fbAuth.json',
   databaseURL: 'https://ply-app.firebaseio.com/',
 });
+
+const db = firebase.database();
