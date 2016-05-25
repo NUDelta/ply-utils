@@ -12,6 +12,7 @@
   "dependencies": {
     "byline": "^4.2.1",
     "cheerio": "^0.20.0",
+    "firebase": "^3.0.3",
     "fs-extra": "^0.30.0",
     "immutable": "^3.8.1",
     "request": "^2.72.0"
