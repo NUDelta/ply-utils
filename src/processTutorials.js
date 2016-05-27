@@ -1,6 +1,7 @@
 import request from 'request';
 import { List, Map, fromJS } from 'immutable';
 import cheerio from 'cheerio';
+import chalk from 'chalk';
 import async from 'async';
 import expand from 'css-shorthand-expand';
 import keywords from '../constants/keywords';
@@ -33,7 +34,7 @@ function getHtmlContent (url) {
 function countKeywords (res) {
   const [html, url] = res;
   const $ = cheerio.load(html);
-  const matches = $('pre').text()
+  const matches = $('pre, code').text()
     .match(/[a-z\-]+:\s?[\w\s#\-%\(\)\.\/!'"]+(?=[$\n;])/gm);
 
   if (!matches) {
@@ -77,8 +78,8 @@ function countKeywords (res) {
  * Called after async.map finishes converting the array of URLs to vectors.
  * Reduces a bunch of Maps into one.
  */
-function classify (instances) {
-  console.log(update('\nClassifying instances...'));
+function classify (technique, instances) {
+  console.log(chalk.green('\nClassifying instances of technique', chalk.underline(technique)));
 
   const dataset = List(instances);
   if (dataset.isEmpty()) {
@@ -102,14 +103,13 @@ function classify (instances) {
 }
 
 /*
- * Takes an array of URLs, asynchronously converts each
+ * Takes a technique String and an Immutable List of URLs, asynchronously converts each
  * into the feature vector for the corresponding website,
  * then invokes `classify` with the fully transformed List.
  */
-export function getAllFeatures (urls) {
-  console.log(update('Querying URLs...'));
+export function getAllFeatures (technique, urls) {
   async.map(
-    urls,
+    urls.toJS(),
     // Asynchronously converts a single URL into an Immutable Map
     // of CSS properties and their frequencies.
     (url, next) => {
@@ -137,7 +137,7 @@ export function getAllFeatures (urls) {
       const numRemoved = results.length - instances.size;
       console.log(update(`Removed ${numRemoved} empty instances.`));
 
-      classify(instances);
+      classify(technique, instances);
     }
   );
 }

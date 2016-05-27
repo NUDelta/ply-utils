@@ -1,7 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import byline from 'byline';
-import { List, fromJS } from 'immutable';
+import { fromJS } from 'immutable';
 
 const SRC = path.join(__dirname, '../../input');
 const DEST = path.join(__dirname, '../../output');
@@ -10,7 +9,7 @@ const DEST = path.join(__dirname, '../../output');
  * Walks a directory and returns an Immutable List of the
  * directory contents.
  */
-export function walkDir (dir) {
+function walkDir (dir) {
   fs.ensureDirSync(dir);
   const files = fromJS(fs.readdirSync(dir));
   return files;
@@ -20,7 +19,7 @@ export function walkDir (dir) {
  * Reads a file and returns an Immutable List of the form
  * [FileName, [FileLines]].
  */
-export function readFile (file) {
+function readFile (file) {
   const urls = fs.readFileSync(path.join(SRC, file))
     .toString()
     .split('\n');
@@ -29,4 +28,14 @@ export function readFile (file) {
   return info;
 }
 
-// console.log(walkDir(SRC).flatMap(readFile));
+/*
+ * Takes a directory and returns an Immutable List of Immutable List pairs
+ * [Technique: String, List<URL: String>]
+ */
+export function getTechniques (dir) {
+  const techniques = fromJS(
+    walkDir(dir).map(readFile)
+  );
+  return techniques;
+}
+
