@@ -21,7 +21,7 @@ function getHtmlContent (url) {
       if (err) {
         reject(err); return;
       }
-      resolve([body, url]);
+      resolve(List([body, url]));
     });
   });
 }
@@ -31,14 +31,14 @@ function getHtmlContent (url) {
  * each denoting the number of times the CSSProperty is mentioned
  * in `pre` tags in the given body.
  */
-function countKeywords (res) {
+export function countKeywords (res) {
   const [html, url] = res;
   const $ = cheerio.load(html);
   const matches = $('pre, code').text()
-    .match(/[a-z\-]+:\s?[\w\s#\-%\(\)\.\/!'"]+(?=[$\n;])/gm);
+    .match(/[a-z\-]+:\s?[\w\s#\-%\(\)\.\/!,'"]+(?=[$\n;])/gm);
 
   if (!matches) {
-    console.log(warn('Unable to find any CSS properties in'), url);
+    console.log(warn('Unable to find any CSS properties in'), chalk.underline.yellow(url));
     return null;
   }
 
@@ -59,6 +59,9 @@ function countKeywords (res) {
         // Return the expanded properties if they exist, else null
         result = expansion ? List(Object.keys(expansion)) : null;
         if (!expansion) console.warn('Warning: couldn\'t parse prop', prop);
+
+        // Add self to list
+        result = result.push(prop);
       } else {
         // Property isn't shorthand, so just return the prop
         result = [prop];  // Single-element list because we're mapping
@@ -68,7 +71,7 @@ function countKeywords (res) {
     })
     // Finally, we sum up the instances of each thing
     .reduce(
-      (acc, tk) => acc.update(tk, 0, count => count + 1),
+      (acc, tk) => acc.update(tk, -1, count => count + 1),
       Map()
     );
   return tallies;
@@ -128,7 +131,7 @@ export function getAllFeatures (technique, urls) {
         console.log(error(err));
       }
 
-      console.log(update('Finished retrieving requests.'));
+      console.log(update('\nFinished retrieving requests for'), chalk.underline.cyan(technique));
       // printData(results);
 
       // `results` is an array of Immutable Map feature vectors
