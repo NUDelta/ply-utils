@@ -81,7 +81,7 @@ export function countKeywords (res) {
  * Called after async.map finishes converting the array of URLs to vectors.
  * Reduces a bunch of Maps into one.
  */
-function classify (technique, instances) {
+export function classify (technique, instances) {
   console.log(chalk.green('\nClassifying instances of technique', chalk.underline(technique)));
 
   const dataset = List(instances);
