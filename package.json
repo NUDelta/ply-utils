@@ -4,9 +4,10 @@
   "description": "search urls for css property mentions",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "babel-node index.js",
-    "lint": "eslint . || true"
+    "lint": "eslint . || true",
+    "test": "mocha --compilers js:babel-core/register --require ./test/test_helper.js --recursive",
+    "test:watch": "npm run test -- --watch"
   },
   "author": "Sarah Lim <sarah@sarahlim.com> (http://sarahlim.com)",
   "license": "ISC",
@@ -25,11 +26,14 @@
     "babel-cli": "^6.9.0",
     "babel-core": "^6.9.0",
     "babel-preset-es2015": "^6.9.0",
+    "chai": "^3.5.0",
+    "chai-immutable": "^1.5.4",
     "eslint": "^2.10.2",
     "eslint-config-airbnb": "^9.0.1",
     "eslint-plugin-import": "^1.8.0",
     "eslint-plugin-jsx-a11y": "^1.2.2",
-    "eslint-plugin-react": "^5.1.1"
+    "eslint-plugin-react": "^5.1.1",
+    "mocha": "^2.5.3"
   },
   "babel": {
     "presets": [
