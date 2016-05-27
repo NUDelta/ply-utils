@@ -1,24 +1,26 @@
 import request from 'request';
-import {List, Map, fromJS, forEach} from 'immutable';
+import { List, Map, fromJS } from 'immutable';
 import cheerio from 'cheerio';
 import async from 'async';
-import keywords from '../keywords';
-import {printData} from './utils/io';
+import expand from 'css-shorthand-expand';
+import keywords from '../constants/keywords';
+import shorthand from '../constants/shorthand';
+import { printData, error, warn, update } from './utils/io';
 
 const KEYWORDS = fromJS(keywords);
+const SHORTHAND = fromJS(shorthand);
 
 /*
  * Returns a Promise for the body of the given URL.
  */
 function getHtmlContent (url) {
   return new Promise((resolve, reject) => {
+    // console.log(update(`Querying ${url}...`));
     request(url, (err, res, body) => {
       if (err) {
-        reject(err);
-        return;
+        reject(err); return;
       }
-
-      resolve(body);
+      resolve([body, url]);
     });
   });
 }
@@ -28,33 +30,47 @@ function getHtmlContent (url) {
  * each denoting the number of times the CSSProperty is mentioned
  * in `pre` tags in the given body.
  */
-function countKeywords (body) {
-  const $ = cheerio.load(body);
-  console.log($('pre').text());
-  const blocks = $('pre').text()  // Load the combined text content of all matched elements
-    .replace(/:/g, ': ');  // HACK: add spaces after colons so filtering works
-  
-  const tokens = blocks.split(/[\s;]+/);
-  const tallies = tokens.filter(tk => tk.charAt(tk.length - 1) === ':')
-    .map(tk => tk.slice(0, tk.length - 1))
-    .filter(tk => KEYWORDS.indexOf(tk) !== -1)
+function countKeywords (res) {
+  const [html, url] = res;
+  const $ = cheerio.load(html);
+  const matches = $('pre').text()
+    .match(/[a-z\-]+:\s?[\w\s#\-%\(\)\.\/!'"]+(?=[$\n;])/gm);
+
+  if (!matches) {
+    console.log(warn('Unable to find any CSS properties in'), url);
+    return null;
+  }
+
+  const pairs = fromJS(matches.map(pair => pair.split(':')));
+  // => [['margin', '4px'], ['border', '1px solid black']]
+
+  // Filter to eliminate false positive "properties"
+  const tallies = pairs.filter(pair => KEYWORDS.includes(pair.first()))
+    // Now expand shorthand properties
+    .flatMap((pair) => {
+      const prop = pair.first();
+      let result;
+
+      // If prop is a shorthand property, expand it
+      if (SHORTHAND.includes(prop)) {
+        const expansion = expand(...pair);
+
+        // Return the expanded properties if they exist, else null
+        result = expansion ? List(Object.keys(expansion)) : null;
+        if (!expansion) console.warn('Warning: couldn\'t parse prop', prop);
+      } else {
+        // Property isn't shorthand, so just return the prop
+        result = [prop];  // Single-element list because we're mapping
+      }
+
+      return result;
+    })
+    // Finally, we sum up the instances of each thing
     .reduce(
       (acc, tk) => acc.update(tk, 0, count => count + 1),
       Map()
     );
-
   return tallies;
-}
-
-/*
- * Asynchronously converts a URL into a feature vector of
- * CSS properties and their frequencies.
- */
-function extractFeatures (url, cb) {
-  getHtmlContent(url)
-    .then(countKeywords)
-    .then(tallies => cb(null, tallies))
-    .catch(err => cb(err, null));
 }
 
 /*
@@ -64,46 +80,70 @@ function extractFeatures (url, cb) {
  * fully transformed List.
  */
 export function getAllFeatures (urls, cb) {
-  const features = async.map(
+  console.log(update('Querying URLs...'));
+  async.map(
     urls,
-    extractFeatures,
+    // Asynchronously converts a single URL into an Immutable Map
+    // of CSS properties and their frequencies.
+    (url, next) => {
+      getHtmlContent(url)
+        .then(countKeywords)
+        .then(tallies => next(null, tallies))
+        .catch(err => {
+          console.log(error(err));
+        });
+    },
     (err, results) => {
+      // After getting a feature vector for a URL, we catch/log errors,
+      // and pass the vector onto the originally provided callback function.
       if (err) {
-        console.log(err);
-        return;
+        console.log('ERROR while mapping URLs');
+        console.log(error(err));
       }
 
-      // `results` is the image of the original array
-      // Remove all empty elements before passing to the callback
-      const instances = List(results).filter(tallies => !tallies.isEmpty());
-      printData(instances);
+      console.log(update('Finished retrieving requests.'));
+      // printData(results);
+
+      // `results` is an array of Immutable Map feature vectors
+      // Remove all empty vectors before passing to the callback
+      const instances = List(results).filter(tallies => tallies);
+      const numRemoved = results.length - instances.size;
+      console.log(update(`Removed ${numRemoved} empty instances.`));
+
       cb(instances);
     }
   );
 }
 
+/*
+ * Called after async.map finishes converting the array of URLs to vectors.
+ * Reduces a bunch of Maps into one.
+ */
 function classify (instances) {
-  // Convert the instances to an Immutable List if not already
-  const dataset = List(instances);
+  console.log(update('\nClassifying instances...'));
 
+  const dataset = List(instances);
   if (dataset.isEmpty()) {
-    console.log('ERROR: all instances empty');
+    console.log(error('All instances were empty'));
     return false;
   }
 
   // Normalize instance vectors by setting every property's count to 1
   const normalized = dataset.map(tallies => tallies.map(count => 1));
-  const n = normalized.size;
 
-  // Merge objects into a super-object
-  const distrib = normalized.reduce(
+  // Merge objects into one technique-wide object
+  const totals = normalized.reduce(
     (acc, instance) => acc.mergeWith((prev, next) => prev + next, instance),
     Map()
-  );
+  )
+  .sort()
+  .reverse();
 
-  printData(distrib.sort().reverse());
+  printData(totals);
+  return totals;
 }
 
+// Just for testing
 const urls = [
   'http://www.minimit.com/articles/solutions-tutorials/fullscreen-backgrounds-with-centered-content',
   'http://sixrevisions.com/css/responsive-background-image/',
@@ -113,11 +153,3 @@ const urls = [
 ];
 
 getAllFeatures(urls, classify);
-
-
-// export function extractFeatures (url) {
-//   getHtmlContent(url)
-//     .then(countKeywords)
-//     .then(tallies => console.log(JSON.stringify(tallies, null, 4)))
-//     .catch(err => console.error(err));
-// }

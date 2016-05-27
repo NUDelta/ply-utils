@@ -1,8 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
 import byline from 'byline';
-import {List, fromJS, forEach} from 'immutable';
-import {getAllFeatures} from './src/processTutorials';
+import { fromJS } from 'immutable';
+import { getAllFeatures } from './src/processTutorials';
 
 const src = path.join(__dirname, 'input');
 const dest = path.join(__dirname, 'output');
@@ -18,7 +18,7 @@ fs.ensureDir(dest, (err) => {
   // contents are a list of urls to query and parse.
   const techniques = fromJS(fs.readdirSync(src));
 
-  techniques.forEach((technique, key) => {
+  techniques.forEach((technique) => {
     // Stream the file contents line by line,
     // processing each line as a url.
     const stream = byline(fs.createReadStream(
@@ -31,7 +31,6 @@ fs.ensureDir(dest, (err) => {
       getAllFeatures(url);
     });
   });
-
 });
 
 

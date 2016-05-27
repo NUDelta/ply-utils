@@ -1,4 +1,4 @@
-import {fromJS, List, Map} from 'immutable';
+import { List, Map } from 'immutable';
 
 /*
   "responsive-background": {
