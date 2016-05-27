@@ -1,39 +1,12 @@
-import fs from 'fs-extra';
-import path from 'path';
-import byline from 'byline';
-import { fromJS } from 'immutable';
 import { getAllFeatures } from './src/processTutorials';
 
-const src = path.join(__dirname, 'input');
-const dest = path.join(__dirname, 'output');
+// Just for testing
+const urls = [
+  'http://www.minimit.com/articles/solutions-tutorials/fullscreen-backgrounds-with-centered-content',
+  'http://sixrevisions.com/css/responsive-background-image/',
+  'https://css-tricks.com/perfect-full-page-background-image/',
+  'https://www.webdesign.org/absolutely-responsive-full-screen-background-images.22549.html',
+  'http://stradegyadvertising.com/css-create-fullscreen-background-image/',
+];
 
-// Ensure the output directory exists, otherwise create
-fs.ensureDir(dest, (err) => {
-  if (err) {
-    console.log(err);
-  }
-
-  // Walk over the input directory.
-  // Each filename represents a technique, and the
-  // contents are a list of urls to query and parse.
-  const techniques = fromJS(fs.readdirSync(src));
-
-  techniques.forEach((technique) => {
-    // Stream the file contents line by line,
-    // processing each line as a url.
-    const stream = byline(fs.createReadStream(
-      path.join(src, technique),
-      { encoding: 'utf8' })
-    );
-
-    stream.on('data', (url) => {
-      console.log('Processing', url);
-      getAllFeatures(url);
-    });
-  });
-});
-
-
-// .pipe(fs.createWriteStream(
-//           path.join(dest, output)
-//         ));
+getAllFeatures(urls);

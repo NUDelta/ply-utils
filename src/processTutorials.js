@@ -74,12 +74,39 @@ function countKeywords (res) {
 }
 
 /*
- * Takes an array of URLs and a callback function.
- * Asynchronously converts each URL into the feature vector for
- * the corresponding website, then invokes the callback with the
- * fully transformed List.
+ * Called after async.map finishes converting the array of URLs to vectors.
+ * Reduces a bunch of Maps into one.
  */
-export function getAllFeatures (urls, cb) {
+function classify (instances) {
+  console.log(update('\nClassifying instances...'));
+
+  const dataset = List(instances);
+  if (dataset.isEmpty()) {
+    console.log(error('All instances were empty'));
+    return false;
+  }
+
+  // Normalize instance vectors by setting every property's count to 1
+  const normalized = dataset.map(tallies => tallies.map(count => 1));
+
+  // Merge objects into one technique-wide object
+  const totals = normalized.reduce(
+    (acc, instance) => acc.mergeWith((prev, next) => prev + next, instance),
+    Map()
+  )
+  .sort()
+  .reverse();
+
+  printData(totals);
+  return totals;
+}
+
+/*
+ * Takes an array of URLs, asynchronously converts each
+ * into the feature vector for the corresponding website,
+ * then invokes `classify` with the fully transformed List.
+ */
+export function getAllFeatures (urls) {
   console.log(update('Querying URLs...'));
   async.map(
     urls,
@@ -110,46 +137,8 @@ export function getAllFeatures (urls, cb) {
       const numRemoved = results.length - instances.size;
       console.log(update(`Removed ${numRemoved} empty instances.`));
 
-      cb(instances);
+      classify(instances);
     }
   );
 }
 
-/*
- * Called after async.map finishes converting the array of URLs to vectors.
- * Reduces a bunch of Maps into one.
- */
-function classify (instances) {
-  console.log(update('\nClassifying instances...'));
-
-  const dataset = List(instances);
-  if (dataset.isEmpty()) {
-    console.log(error('All instances were empty'));
-    return false;
-  }
-
-  // Normalize instance vectors by setting every property's count to 1
-  const normalized = dataset.map(tallies => tallies.map(count => 1));
-
-  // Merge objects into one technique-wide object
-  const totals = normalized.reduce(
-    (acc, instance) => acc.mergeWith((prev, next) => prev + next, instance),
-    Map()
-  )
-  .sort()
-  .reverse();
-
-  printData(totals);
-  return totals;
-}
-
-// Just for testing
-const urls = [
-  'http://www.minimit.com/articles/solutions-tutorials/fullscreen-backgrounds-with-centered-content',
-  'http://sixrevisions.com/css/responsive-background-image/',
-  'https://css-tricks.com/perfect-full-page-background-image/',
-  'https://www.webdesign.org/absolutely-responsive-full-screen-background-images.22549.html',
-  'http://stradegyadvertising.com/css-create-fullscreen-background-image/',
-];
-
-getAllFeatures(urls, classify);
