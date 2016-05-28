@@ -28,11 +28,13 @@ function reducer (normalized, old = Map(), n = 0) {
     old
   );
   const newCount = n + normalized.size;
-  if (isNaN(normalized.size)) {
-    console.log(normalized);
-    throw new Error('NaNville', normalized);
-  }
-  return [reduced.sort().reverse(), newCount];
+
+  // Filter out zero-valued props and sort
+  const sorted = reduced.filter(val => val > 0)
+    .sort()
+    .reverse();  // Want highest vals first
+
+  return [sorted, newCount];
 }
 
 /**

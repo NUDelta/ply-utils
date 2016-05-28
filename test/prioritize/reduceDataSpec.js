@@ -73,8 +73,8 @@ describe('reduceDataBulk', () => {
       OrderedMap({
         'margin-left': 5,
         'float': 5,
-        'font-family': 0,
-        'vertical-align': 0,
+        'font-family': 1,
+        'vertical-align': 1,
       }),
       2
     ];
@@ -82,7 +82,7 @@ describe('reduceDataBulk', () => {
     const result = reduceDataBulk(input, [Map(), 0], (tallies) =>
       tallies.map(count => {
         if (count > 1) return 5;
-        return 0;
+        return 1;
       })
     );
     expect(result).to.eql(expected);
@@ -145,6 +145,35 @@ describe('reduceDataBulk', () => {
     const result = reduceDataBulk(List([input]), init);
     expect(result).to.eql(expected);
   });
+
+  it('filters out zero-valued props after reducing', () => {
+    const input = List([
+      OrderedMap({
+        'float': 3,
+        'margin-left': 2,
+      }),
+      OrderedMap({
+        'vertical-align': 1,
+        'font-family': 1,
+      }),
+    ]);
+
+    const expected = [
+      OrderedMap({
+        'margin-left': 5,
+        'float': 5,
+      }),
+      2
+    ];
+
+    const result = reduceDataBulk(input, [Map(), 0], (tallies) =>
+      tallies.map(count => {
+        if (count > 1) return 5;
+        return 0;
+      })
+    );
+    expect(result).to.eql(expected);
+  });
 });
 
 describe('reduceDataSingle', () => {
@@ -175,7 +204,29 @@ describe('reduceDataSingle', () => {
     const expected = [
       OrderedMap({
         'float': 5,
-        'margin-left': 0,
+        'margin-left': 1,
+      }),
+      1
+    ];
+
+    const result = reduceDataSingle(input, [Map(), 0], (tallies) =>
+      tallies.map(count => {
+        if (count > 1) return 5;
+        return 1;
+      })
+    );
+    expect(result).to.eql(expected);
+  });
+
+  it('filters out zero-valued props after reducing', () => {
+    const input = OrderedMap({
+      'float': 10,
+      'margin-left': 1,
+    });
+
+    const expected = [
+      OrderedMap({
+        'float': 5,
       }),
       1
     ];

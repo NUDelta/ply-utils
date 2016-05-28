@@ -14,15 +14,15 @@ export function computeDistribution (urls) {
   return new Promise((resolve, reject) => {
     Promise.all(urls.map(processUrl))
       .then((res) => {
-        // Convert to Immutable List and filter out sites with
+        // Convert to Immutable List, filter out sites with
         // no results
         const totals = fromJS(res)
           .filter(tallies => !tallies.isEmpty());
 
         // Eventually will hook into the DB here to get the
         // technique distribution
-        const result = reduceDataBulk(totals);
-        resolve(...result);
+        const dist = reduceDataBulk(totals);
+        resolve(...dist);
       })
       .catch(err => {
         logExceptOnTest(err);
