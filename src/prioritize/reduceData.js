@@ -17,16 +17,16 @@ export function binary (tallies) {
  * fn: (OrderedMap<[prop: string]: count: number> -> OrderedMap<[prop: string]: count: number>)
  * -> OrderedMap<[prop: string]: count: number>
  *
- * Reduces a List of props and their frequencies to one OrderedMap, according to a supplied weighting function.
- * Used to predict relevance for a given technique, across
- * all input URLs.
+ * Reduces a List of OrderedMaps detailing props and their frequencies to
+ * one OrderedMap, according to a supplied weighting function.
+ * Used to predict relevance for a given technique, across all input URLs.
  */
-export function reduceData (urlKeywords, fn = binary) {
+export function reduceData (urlKeywords, init = Map(), fn = binary) {
   // Apply `fn` to each URL's distribution
   const normalized = urlKeywords.map(fn);
   const reduced = normalized.reduce(
     (acc, instance) => acc.mergeWith((prev, next) => prev + next, instance),
-    Map()
+    init
   );
   return reduced.sort().reverse();
 }
