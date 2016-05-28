@@ -13,12 +13,25 @@ describe('binary', () => {
   });
 
   it('returns an OrderedMap with all values set to 1', () => {
-    
+    const input = OrderedMap({
+      'foo': 4,
+      'bar': -2,
+      'baz': 30,
+    });
+
+    const expected = OrderedMap({
+      'foo': 1,
+      'bar': 1,
+      'baz': 1,
+    });
+
+    const result = binary(input);
+    expect(result).to.equal(expected);
   });
 });
 
 describe('reduceDataBulk', () => {
-  it('reduces a list of props to one OrderedMap with the default function', () => {
+  it('reduces a list of props to one [OrderedMap, n] pair with the default function', () => {
     const input = List([
       OrderedMap({
         'float': 3,
@@ -30,15 +43,18 @@ describe('reduceDataBulk', () => {
       }),
     ]);
 
-    const expected = OrderedMap({
-      'font-family': 1,
-      'vertical-align': 1,
-      'margin-left': 1,
-      'float': 1,
-    });
+    const expected = [
+      OrderedMap({
+        'font-family': 1,
+        'vertical-align': 1,
+        'margin-left': 1,
+        'float': 1,
+      }),
+      2
+    ];
 
     const result = reduceDataBulk(input);
-    expect(result).to.equal(expected);
+    expect(result).to.eql(expected);
   });
 
   it('reduces with an arbitrary helper function', () => {
@@ -53,29 +69,35 @@ describe('reduceDataBulk', () => {
       }),
     ]);
 
-    const expected = OrderedMap({
-      'margin-left': 5,
-      'float': 5,
-      'font-family': 0,
-      'vertical-align': 0,
-    });
+    const expected = [
+      OrderedMap({
+        'margin-left': 5,
+        'float': 5,
+        'font-family': 0,
+        'vertical-align': 0,
+      }),
+      2
+    ];
 
-    const result = reduceDataBulk(input, Map(), (tallies) =>
+    const result = reduceDataBulk(input, [Map(), 0], (tallies) =>
       tallies.map(count => {
         if (count > 1) return 5;
         return 0;
       })
     );
-    expect(result).to.equal(expected);
+    expect(result).to.eql(expected);
   });
 
-  it('reduces into a supplied initial OrderedMap value', () => {
-    const init = OrderedMap({
-      'float': 2,
-      'margin-left': 1,
-      'font-family': 1,
-      'vertical-align': 1,
-    });
+  it('reduces into a supplied initial [OrderedMap, count] pair', () => {
+    const init = [
+      OrderedMap({
+        'float': 2,
+        'margin-left': 1,
+        'font-family': 1,
+        'vertical-align': 1,
+      }),
+      3
+    ];
 
     const input = List([
       OrderedMap({
@@ -88,23 +110,30 @@ describe('reduceDataBulk', () => {
       }),
     ]);
 
-    const expected = OrderedMap({
-      'float': 3,
-      'vertical-align': 2,
-      'font-family': 2,
-      'margin-left': 2,
-    });
+    const expected = [
+      OrderedMap({
+        'float': 3,
+        'vertical-align': 2,
+        'font-family': 2,
+        'margin-left': 2,
+      }),
+      5
+    ];
+
     const result = reduceDataBulk(input, init);
-    expect(result).to.equal(expected);
+    expect(result).to.eql(expected);
   });
 
   it('behaves identically to reduceDataSingle, given a single-item list', () => {
-    const init = OrderedMap({
-      'float': 2,
-      'margin-left': 1,
-      'font-family': 1,
-      'vertical-align': 1,
-    });
+    const init = [
+      OrderedMap({
+        'float': 2,
+        'margin-left': 1,
+        'font-family': 1,
+        'vertical-align': 1,
+      }),
+      5
+    ];
 
     const input = OrderedMap({
       'float': 3,
@@ -114,7 +143,7 @@ describe('reduceDataBulk', () => {
     const expected = reduceDataSingle(input, init);
 
     const result = reduceDataBulk(List([input]), init);
-    expect(result).to.equal(expected);
+    expect(result).to.eql(expected);
   });
 });
 
@@ -125,56 +154,68 @@ describe('reduceDataSingle', () => {
       'margin-left': 2,
     });
 
-    const expected = OrderedMap({
-      'margin-left': 1,
-      'float': 1,
-    });
+    const expected = [
+      OrderedMap({
+        'margin-left': 1,
+        'float': 1,
+      }),
+      1
+    ];
 
-    const result = reduceDataSingle(input, Map());
-    expect(result).to.equal(expected);
+    const result = reduceDataSingle(input, [Map(), 0]);
+    expect(result).to.eql(expected);
   });
 
-  it('reduces a single OrderedMap an arbitrary helper function', () => {
+  it('reduces a single OrderedMap with an arbitrary helper function', () => {
     const input = OrderedMap({
       'float': 10,
       'margin-left': 1,
     });
 
-    const expected = OrderedMap({
-      'float': 5,
-      'margin-left': 0,
-    });
+    const expected = [
+      OrderedMap({
+        'float': 5,
+        'margin-left': 0,
+      }),
+      1
+    ];
 
-    const result = reduceDataSingle(input, Map(), (tallies) =>
+    const result = reduceDataSingle(input, [Map(), 0], (tallies) =>
       tallies.map(count => {
         if (count > 1) return 5;
         return 0;
       })
     );
-    expect(result).to.equal(expected);
+    expect(result).to.eql(expected);
   });
 
   it('reduces into a supplied initial OrderedMap value', () => {
-    const init = OrderedMap({
-      'float': 2,
-      'margin-left': 1,
-      'font-family': 1,
-      'vertical-align': 1,
-    });
+    const init = [
+      OrderedMap({
+        'float': 2,
+        'margin-left': 1,
+        'font-family': 1,
+        'vertical-align': 1,
+      }),
+      4
+    ];
 
     const input = OrderedMap({
       'float': 3,
       'margin-left': 2,
     });
 
-    const expected = OrderedMap({
-      'float': 3,
-      'margin-left': 2,
-      'vertical-align': 1,
-      'font-family': 1,
-    });
+    const expected = [
+      OrderedMap({
+        'float': 3,
+        'margin-left': 2,
+        'vertical-align': 1,
+        'font-family': 1,
+      }),
+      5
+    ];
 
     const result = reduceDataSingle(input, init);
-    expect(result).to.equal(expected);
+    expect(result).to.eql(expected);
   });
 });

@@ -14,45 +14,53 @@ export function binary (tallies) {
 
 /**
  * normalized: List< OrderedMap<[prop: string]: count: number> >,
- * -> OrderedMap<[prop: string]: count: number>
+ * init?: [Map<[prop: string]: count: number>, n: number]
+ * -> [OrderedMap<[prop: string]: count: number>, number]
  *
- * Reduces a List of OrderedMaps into one OrderedMap, adding everything
- * together. Helper function for reduceData and reduceDataBulk.
+ * Helper function for reduceData and reduceDataBulk.
+ * Reduces a List of OrderedMaps into one OrderedMap, adding everything together.
+ * Returns a pair consisting of the reduced OrderedMap,
+ * along with the number of sites the reduction is based on.
  */
-function reducer (normalized, init = Map()) {
+function reducer (normalized, old = Map(), n = 0) {
   const reduced = normalized.reduce(
     (acc, instance) => acc.mergeWith((prev, next) => prev + next, instance),
-    init
+    old
   );
-  return reduced.sort().reverse();
+  const newCount = n + normalized.size;
+  if (isNaN(normalized.size)) {
+    console.log(normalized);
+    throw new Error('NaNville', normalized);
+  }
+  return [reduced.sort().reverse(), newCount];
 }
 
 /**
  * instance: OrderedMap<[prop: string]: count: number>,
- * fn: (OrderedMap<[prop: string]: count: number> -> OrderedMap<[prop: string]: count: number>)
- * -> OrderedMap<[prop: string]: count: number>
+ * init?: [Map<[prop: string]: count: number>, n: number],
+ * fn?: (OrderedMap<[prop: string]: count: number> -> OrderedMap<[prop: string]: count: number>)
+ * -> [OrderedMap<[prop: string]: count: number>, number]
  *
- * Reduces a single OrderedMap detailing props and their frequencies into a supplied
- * initial OrderedMap, according to a supplied weighting function.
- * Used to add a single new instance
+ * Adds a single new instance to a reduction.
  */
-export function reduceDataSingle (instance, init = Map(), fn = binary) {
+export function reduceDataSingle (instance, init = [Map(), 0], fn = binary) {
   // Apply `fn` to the instance
   const normalized = List([fn(instance)]);
-  return reducer(normalized, init);
+  const [reduced, n] = reducer(normalized, ...init);
+  return [reduced, n];
 }
 
 /**
  * urlKeywords: List< OrderedMap<[prop: string]: count: number> >,
- * fn: (OrderedMap<[prop: string]: count: number> -> OrderedMap<[prop: string]: count: number>)
- * -> OrderedMap<[prop: string]: count: number>
+ * init?: [Map<[prop: string]: count: number>, n: number],
+ * fn?: (OrderedMap<[prop: string]: count: number> -> OrderedMap<[prop: string]: count: number>)
+ * -> [OrderedMap<[prop: string]: count: number>, number]
  *
- * Reduces a List of OrderedMaps detailing props and their frequencies to
- * one OrderedMap, according to a supplied weighting function.
- * Used to predict relevance for a given technique, across all input URLs.
+ * Adds a List of new URL instances to a reduction.
  */
-export function reduceDataBulk (urlKeywords, init = Map(), fn = binary) {
+export function reduceDataBulk (urlKeywords, init = [Map(), 0], fn = binary) {
   // Apply `fn` to each URL's distribution
   const normalized = urlKeywords.map(fn);
-  return reducer(normalized, init);
+  const [reduced, n] = reducer(normalized, ...init);
+  return [reduced, n];
 }
