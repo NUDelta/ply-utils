@@ -6,7 +6,7 @@ import { logExceptOnTest, error } from '../utils/msg';
  *
  * Requests the body of a provided url.
  */
-export default function getHtmlContent (url) {
+export default function getHTMLContent (url) {
   return new Promise((resolve, reject) => {
     request(url, (err, res, body) => {
       if (err) {

@@ -1,4 +1,4 @@
-import getHtmlContent from './getHtmlContent';
+import getHTMLContent from './getHTMLContent';
 import parseKeywords from './parseKeywords';
 import tallyKeywords from './tallyKeywords';
 import { update, logExceptOnTest } from '../utils/msg';
@@ -17,7 +17,7 @@ export default function getUrlKeywords (url) {
   return new Promise((resolve, reject) => {
     logExceptOnTest(update('Requesting body for')(url));
 
-    getHtmlContent(url)
+    getHTMLContent(url)
       .then(res => parseKeywords(res, url))
       .then(res => tallyKeywords(res, url))
       .then(res => resolve(res))
