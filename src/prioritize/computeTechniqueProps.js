@@ -1,5 +1,5 @@
 import processUrl from '../scraping';
-import { reduceData } from './reduceData';
+import { reduceDataBulk } from './reduceData';
 import { logExceptOnTest } from '../utils/msg';
 
 /**
@@ -12,7 +12,7 @@ export function computeDistribution (urls) {
   return new Promise((resolve, reject) => {
     Promise.all(urls.map(processUrl))
       .then((res) => {
-        const dist = reduceData(res);
+        const dist = reduceDataBulk(res);
         resolve(dist);
       })
       .catch(err => {
