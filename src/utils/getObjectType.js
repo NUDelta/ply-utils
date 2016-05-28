@@ -30,3 +30,27 @@ export function getObjectType (input) {
   // If we have no idea, throw an error
   throw new Error('Unrecognized type');
 }
+
+/**
+ * input: Array | Object -> true
+ * input: OrderedMap | List | Map -> false
+ *
+ * Returns a boolean indicating whether the input object
+ * is a JS native type.
+ */
+export function isJS (input) {
+  const type = getObjectType(input);
+  return !!(type.match(/^JS/));
+}
+
+/**
+ * input: OrderedMap | List | Map -> true
+ * input: Array | Object -> false
+ *
+ * Returns a boolean indicating whether the input object
+ * is an ImmutableJS type.
+ */
+export function isImmutable (input) {
+  const type = getObjectType(input);
+  return !!(type.match(/^Immutable/));
+}
