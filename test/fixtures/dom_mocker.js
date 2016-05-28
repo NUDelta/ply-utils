@@ -16,12 +16,10 @@ const body = (code) => `<!DOCTYPE html>
 const preWrap = (code) => `<pre><code>${code}</code></pre>`;
 
 /*
- * Takes an array of snippets and preWraps them,
+ * Takes an array of snippets and optionally prewraps them,
  * then appends to the HTML body and returns the result
  */
-export default function appendSnippets (snippets) {
-  const children = snippets.map(preWrap)
-    .join('\n');
-
-  return body(children);
+export default function appendSnippets (snippets, wrap = true) {
+  const children = wrap ? snippets.map(preWrap) : snippets;
+  return body(children.join('\n'));
 }

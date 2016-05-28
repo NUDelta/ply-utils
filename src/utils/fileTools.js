@@ -3,7 +3,7 @@ import path from 'path';
 import { fromJS } from 'immutable';
 
 const SRC = path.join(__dirname, '../../input');
-const DEST = path.join(__dirname, '../../output');
+// const DEST = path.join(__dirname, '../../output');
 
 /*
  * Walks a directory and returns an Immutable List of the

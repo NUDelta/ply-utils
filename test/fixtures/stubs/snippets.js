@@ -1,5 +1,3 @@
-import appendSnippets from '../dom_mocker';
-
 /* eslint indent: "off" */
 
 const snippets = [
@@ -22,4 +20,4 @@ const snippets = [
 }`,
 ];
 
-export default appendSnippets(snippets);
+export default snippets;

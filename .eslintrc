@@ -4,7 +4,7 @@
       "space-before-function-paren": [1, "always"],
       "comma-dangle": [2, "only-multiline"],
       "new-cap": [2, {
-            "capIsNewExceptions": ["List", "Map", "fromJS"]
+            "capIsNewExceptions": ["List", "Map", "fromJS", "OrderedMap"]
           }],
       "max-len": [1, 120, 2, { "ignoreComments": true }],
       "no-else-return": 1,

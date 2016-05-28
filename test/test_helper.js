@@ -1,5 +1,6 @@
 import chai from 'chai';
 import chaiImmutable from 'chai-immutable';
+import chaiAsPromised from 'chai-as-promised';
 
-// Plug in chai-immutable before any tests
 chai.use(chaiImmutable);
+chai.use(chaiAsPromised);
