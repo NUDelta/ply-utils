@@ -8,7 +8,7 @@ const KEYWORDS = fromJS(keywords);
 const SHORTHAND = fromJS(shorthand);
 
 /**
- * pairs: List< <prop: string, val: string>>, url?: string -> OrderedMap<[prop: string]: count: number>
+ * pairs: List< <prop: string, val: string>>, url?: string -> Map<[prop: string]: count: number>
  *
  * Tallies the total number of valid CSS `props` in a list of `prop: val` pairs, and sorts by frequency.
  *
@@ -66,8 +66,5 @@ export default function tallyKeywords (pairs, url = null) {
     Map()
   );
 
-  // Sort by decreasing frequency
-  const sorted = total.sort().reverse();
-
-  return sorted;
+  return total;
 }

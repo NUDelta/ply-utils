@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromJS, OrderedMap } from 'immutable';
+import { fromJS, Map } from 'immutable';
 
 import tallyKeywords from '../../src/scraping/tallyKeywords';
 
@@ -13,7 +13,7 @@ describe('tallyKeywords', () => {
         ['padding-left', '10%'],
         ['font-family', "'Georgia', 'Times New Roman', serif"]
     ]);
-    const expected = OrderedMap({
+    const expected = Map({
       'margin-top': 2,
       'font-family': 1,
       'padding-left': 1,
@@ -28,7 +28,7 @@ describe('tallyKeywords', () => {
         ['margin-top', '10px'],
         ['margin-top', '20px'],
     ]);
-    const expected = OrderedMap({
+    const expected = Map({
       'margin-top': 2,
       'padding-left': 1,
     });
@@ -41,7 +41,7 @@ describe('tallyKeywords', () => {
       ['margin', '0 auto'],
       ['background', 'url(/path/to/image.png) no-repeat center center #fff']
     ]);
-    const expected = OrderedMap({
+    const expected = Map({
       'margin-right': 1,
       'background-image': 1,
       'background-repeat': 1,
@@ -61,7 +61,7 @@ describe('tallyKeywords', () => {
     const input = fromJS([
       ['background', 'url(/pa$']
     ]);
-    const expected = OrderedMap({
+    const expected = Map({
       'background': 1,
     });
     const result = tallyKeywords(input);
@@ -75,7 +75,7 @@ describe('tallyKeywords', () => {
       ['fllf', 'url(/hello/bye.png)'],
       ['content', '\'\''],
     ]);
-    const expected = OrderedMap({
+    const expected = Map({
       'content': 1,
       'float': 1,
       'margin-left': 1,

@@ -1,6 +1,6 @@
 import cheerio from 'cheerio';
 import { fromJS } from 'immutable';
-import { error, warning, update, logExceptOnTest } from '../utils/msg';
+import { warning, logExceptOnTest } from '../utils/msg';
 
 /**
  * html: string, url?: string -> List< <prop: string, val: string> >
