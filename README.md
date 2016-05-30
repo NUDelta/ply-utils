@@ -42,4 +42,5 @@ npm run test:watch
 
 ## Todo
 
-[ ] Fix parsing of `<code>` tags nested inside `<pre>` tags
+- [ ] Fix parsing of `<code>` tags nested inside `<pre>` tags
+- [ ] Connect to Firebase
