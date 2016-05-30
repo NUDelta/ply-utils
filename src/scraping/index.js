@@ -16,14 +16,14 @@ const DEFAULT = Map();
  */
 export default function getUrlKeywords (url) {
   return new Promise((resolve, reject) => {
-    logExceptOnTest(update('Requesting body for')(url));
+    logExceptOnTest(update(`\t${url}`)());
 
     getHTMLContent(url)
       .then(res => parseKeywords(res, url))
       .then(res => tallyKeywords(res, url))
       .then(res => resolve(res))
       .catch(err => {
-        logExceptOnTest(err);
+        // logExceptOnTest(err);
         // Since this function is used for Promise.all(), we don't want to
         // ever reject, just resolve with a default value (in this case
         // an empty Map).

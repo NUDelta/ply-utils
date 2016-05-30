@@ -1,9 +1,9 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { fromJS } from 'immutable';
+import { List, fromJS } from 'immutable';
 
-const SRC = path.join(__dirname, '../../input');
-// const DEST = path.join(__dirname, '../../output');
+export const SRC = path.join(__dirname, '../../input');
+export const DEST = path.join(__dirname, '../../output');
 
 /*
  * Walks a directory and returns an Immutable List of the
@@ -24,7 +24,7 @@ function readFile (file) {
     .toString()
     .split('\n');
 
-  const info = fromJS([file, urls]);
+  const info = List.of(file, urls);
   return info;
 }
 
@@ -38,4 +38,3 @@ export function getTechniques (dir) {
   );
   return techniques;
 }
-

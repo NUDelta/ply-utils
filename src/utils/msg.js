@@ -45,7 +45,7 @@ function syntaxHighlight (json) {
       if (/:$/.test(match)) {
         return chalk.green(match);
       } else {
-        return chalk.magenta(match);
+        return chalk.red(match);
       }
     } else if (/true|false/.test(match)) {
       return chalk.yellow(match);
